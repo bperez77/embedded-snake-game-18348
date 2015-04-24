@@ -17,6 +17,11 @@
 
 #include "stdbool.h"
 
+/* The size of the game board in rows and columns. Each dimension
+ * must be a power of 2, or food generation will not work properly. */
+#define SNAKE_ROWS        8
+#define SNAKE_COLUMNS     8
+
 /* Food is represented by -1, an empty spot by 0, and any part of
  * the snake is represented by a positive integer. The head is the
  * highest number. */
@@ -34,9 +39,7 @@ typedef struct {
     int drow;
     int dcol;
 
-    int rows;
-    int cols;
-    int *board[SNAKE_ROWS][SNAKE_COLUMNS];
+    int board[SNAKE_ROWS][SNAKE_COLUMNS];
 } snake_game_t;
 
 #endif /* SNAKE_GAME_H_ */

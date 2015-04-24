@@ -15,9 +15,14 @@
 #ifndef STDINT_H_
 #define STDINT_H_
 
-// Defintions for the fundamental sizes
-typedef char uint8_t;
-typedef int uint16_t;
-typedef long uint32_t;
+// Defintions for signed types
+typedef char int8_t;
+typedef int int16_t;
+typedef long int32_t;
+
+// Definitions for unsigned types
+typedef unsigned char uint8_t;
+typedef unsigned int uint16_t
+typedef unsigned long uint32_t;
 
 #endif /* STDINT_H_ */

@@ -47,10 +47,11 @@
  * defaulting to a linear search. */
 #define MAX_FOOD_TRIES       10
 
-static int rand = RAND_SEED;
+static int seed = RAND_SEED;
 
-static int wrap_add(int x, int y, int limit)
-static int mod(int x, int limit)
+static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS]);
+static int wrap_add(int x, int y, int limit);
+static int mod(int x, int limit);
 static int rand();
 
 /*-----------------------------------------------------------------
@@ -64,7 +65,7 @@ static int rand();
  * Board must point to a region of memory that can hold (rows * cols)
  * bytes (sizeof(int)). Rows and cols must both be powers of 2.
  */
-void game_init(snake_game_t *game, int *board, int rows, int cols)
+void game_init(snake_game_t *game)
 {
     int row, col;
 
@@ -74,24 +75,22 @@ void game_init(snake_game_t *game, int *board, int rows, int cols)
     game->score = INIT_SNAKE_LEN;
 
     // Initialize the snake position and direction
-    game->head_row = (rows/2 - INIT_SNAKE_LEN/2);
-    game->head_col = cols/2;
+    game->head_row = INIT_HEAD_ROW / 2;
+    game->head_col = INIT_HEAD_COL/2 - INIT_SNAKE_LEN/2;
     game->drow = INIT_DROW;
     game->dcol = INIT_DCOL;
 
     // Initialize the snake board, and place the snake on the board
-    game->rows = rows;
-    game->cols = cols;
-    for (row = 0; row < rows; i++)
+    for (row = 0; row < SNAKE_ROWS; row++)
     {
-        for (col = 0; col < cols; i++)
+        for (col = 0; col < SNAKE_COLUMNS; col++)
         {
-            if ((col == game->head_col) && (game->head_row <= row) &&
-                (row < game->head_row + INIT_SNAKE_LEN))
+            if ((row == INIT_HEAD_ROW) && (INIT_HEAD_COL <= col) &&
+                (col < INIT_HEAD_COL + INIT_SNAKE_LEN))
             {
-                game->board[row][col] = SNAKE;
+                game->board[row][col] = INIT_SNAKE_LEN - (col - INIT_HEAD_COL);
             } else {
-                game->board[row][col] = EMPTY;
+                game->board[row][col] = SNAKE_EMPTY;
             }
         }
     }
@@ -106,6 +105,7 @@ void game_init(snake_game_t *game, int *board, int rows, int cols)
 
 void move_snake(snake_game_t *game)
 {
+    int row, col;
     int next_row, next_col;
     int head_row, head_col;
 
@@ -128,9 +128,9 @@ void move_snake(snake_game_t *game)
         game->score += 1;
         game->board[next_row][next_col] = game->board[head_row][head_col] + 1;
 
-        generate_food(&(game->board));
+        generate_food(game->board);
         return;
-    } else if (board[next_row][next_col] > 0) {
+    } else if (game->board[next_row][next_col] > 0) {
         game->game_over = true;
         return;
     }
@@ -139,9 +139,9 @@ void move_snake(snake_game_t *game)
     game->board[next_row][next_col] = game->board[head_row][head_col] + 1;
 
     // Move the rest of the snake
-    for (row = 0; row < game->rows; row++)
+    for (row = 0; row < SNAKE_ROWS; row++)
     {
-        for (col = 0; col < game->cols; col++)
+        for (col = 0; col < SNAKE_COLUMNS; col++)
         {
             if (game->board[row][col] > 0) {
                 game->board[row][col] -= 1;
@@ -155,6 +155,40 @@ void move_snake(snake_game_t *game)
 /*-----------------------------------------------------------------
  * Internal Functions
  *-----------------------------------------------------------------*/
+
+static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS])
+{
+    int i;
+    int row, col;
+    int food_row, food_col;
+
+    // Attempt to randomly generate a new position for the food
+    for (i = 0; i < MAX_FOOD_TRIES; i++)
+    {
+        food_row = mod(rand(), SNAKE_ROWS);
+        food_col = mod(rand(), SNAKE_COLUMNS);
+        if (board[food_row][food_col] == SNAKE_EMPTY) {
+            board[food_row][food_col] = SNAKE_FOOD;
+            return;
+        }
+    }
+
+    /* If the random search fails, then simply search for the first
+     * empty spot on the board. */
+    for (row = 0; i < SNAKE_ROWS; row++)
+    {
+        for (col = 0; col < SNAKE_COLUMNS; col++)
+        {
+            if (board[food_row][food_col] == SNAKE_EMPTY) {
+                board[food_row][food_col] = SNAKE_FOOD;
+                return;
+            }
+        }
+    }
+
+    return;
+}
+
 
 /* wrap_add
  *
@@ -177,42 +211,10 @@ static int mod(int x, int limit)
     return x & (limit - 1);
 }
 
-static void generate_food(int *board)
-{
-    int i;
-    int food_row, food_col;
-
-    // Attempt to randomly generate a new position for the food
-    for (i = 0; i < MAX_FOOD_TRIES; i++)
-    {
-        food_row = mod(rand(), snake->rows);
-        food_col = mod(rand(), snake->cols);
-        if (board[food_row][food_col] == SNAKE_EMPTY) {
-            board[food_row][food_col] = SNAKE_FOOD;
-            return;
-        }
-    }
-
-    /* If the random search fails, then simply search for the first
-     * empty spot on the board. */
-    for (row = 0; i < game->rows; i++)
-    {
-        for (col = 0; col < game->cols; i++)
-        {
-            if (board[food_row][food_col] == SNAKE_EMPTY) {
-                board[food_row][food_col] = SNAKE_FOOD;
-                return;
-            }
-        }
-    }
-
-    return;
-}
-
 static int rand()
 {
-    rand = RAND_MULTIPLIER*rand + RAND_OFFSET
-    return 0;
+    seed = RAND_MULTIPLIER*seed + RAND_OFFSET;
+    return seed;
 }
 
 
