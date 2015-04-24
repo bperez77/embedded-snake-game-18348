@@ -11,9 +11,15 @@
  * Created: Fri 24 Apr 2015 03:55:00 PM EDT
  * Last Modified: TODO: Update
  *
- * TODO: ENTER PROGRAM NAME HERE
+ * This is the module that manages the snake game. The game is represented
+ * by a 2D array, corresponding to the LED array that it is mapped onto.
+ * Food is represented by -1, and empty spot by 0, and a positive integer
+ * represents a part of the snake. The head of the snake is the largest
+ * number, and it monotonically decreases to the tail.
  *
- * TODO: ENTER PROGRAM DESCRIPTION HERE
+ * The game commences as long as the snake does not intersect with
+ * itself, at which point, the game ends. Whenever the snake eats food,
+ * it grows in size by 1, and the user's score increases by 1.
  *
  * Externally Visible Items:
  *     void init_game(snake_game_t *game)
@@ -96,13 +102,19 @@ void game_init(snake_game_t *game)
     }
 
     // Add a piece of food onto the board
-    row = rand();
-    col = rand();
-    game->board[row][col] = SNAKE_FOOD;
+    generate_food(game->board);
 
     return;
 }
 
+/* move_snake
+ *
+ * Moves the snake exactly one place, updating the board appropiately.
+ * The movement of the snake permits it to wrap around the board. If
+ * the head of the snakes moves into food, then it "eats" it, which
+ * causes its size to grow by one. If the snake intersects with itself,
+ * then the game ends.
+ */
 void move_snake(snake_game_t *game)
 {
     int row, col;
@@ -156,6 +168,14 @@ void move_snake(snake_game_t *game)
  * Internal Functions
  *-----------------------------------------------------------------*/
 
+/* generate_food
+ *
+ * Generates a new piece of food, and places it randomly on the board.
+ * This occurs after a snake eats a piece of food. This functions
+ * attempts to place the food randomly MAX_FOOD_TRIES times. If
+ * every time leads to a conflict, then it gives up and searches the
+ * board for the first empty location, and places the food there.
+ */
 static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS])
 {
     int i;
@@ -211,10 +231,13 @@ static int mod(int x, int limit)
     return x & (limit - 1);
 }
 
+/* rand
+ *
+ * This function is a simple 16-bit linear congruential pseudo-random
+ * number generator. This function is not reentrant.
+ */
 static int rand()
 {
     seed = RAND_MULTIPLIER*seed + RAND_OFFSET;
     return seed;
 }
-
-
