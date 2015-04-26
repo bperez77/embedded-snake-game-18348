@@ -66,16 +66,14 @@ static int rand();
 /* game_init
  *
  * Initializes the snake game. Setups up the snake on the board,
- * generates a single item of food, and sets the game as not paused.
- * Board must point to a region of memory that can hold (rows * cols)
- * bytes (sizeof(int)). Rows and cols must both be powers of 2.
+ * generates a single item of food, and sets the game as paused.
  */
 void game_init(snake_game_t *game)
 {
     int row, col;
 
     // Initialize the game state
-    game->paused = false;
+    game->paused = true;
     game->game_over = false;
     game->score = INIT_SNAKE_LEN;
 
