@@ -32,27 +32,40 @@
  * Internal Definitions
  *----------------------------------------------------------------------------*/
 
+// Clock dividers for the A/D converter, serial module, and PWM module
+#define PWM_CLOCK_SCALE                4
+#define ATD_CLOCK_SCALE                5
+#define TIMER_CLOCK_SCALE              4
+#define SCI_CLOCK_SCALE               52
+
+// The value of the timer to generate an interrupt for (every 15 ms)
+#define TIMER_TC7_CMP               7500
+
 /*----------------------------------------------------------------------------
- * Internal Definitions
+ * Interface Functions
  *----------------------------------------------------------------------------*/
 
 /* setup_ports
  *
  * Configures the ports on the MCU appropiately for this project. See
  * the comments below for the specific configurations.
+ *
+ * Port T[7:5] drives the column of the LED matrix, T[4:2] the row. Port P[0]
+ * outputs the PWM signal that drives the LED's. Port AD[7] is the analog input
+ * of the measured ambient brightness of the room. Port B[0] is the pause button
+ * input, and Port B[1] is the restart button input.
  */
 void setup_ports()
 {
     /* Port T[7:2] is used to drive the row and column numbers out to the two
      * decoders that are hooked up to the LED matrix. This specifies which LED
-     * is currently lit up. Port T[7:5] is the column and T[2:0] is the row. */
+     * is currently lit up. Port T[7:5] is the column and T[4:02 is the row. */
     DDRT = 0xFC;            // Port T[7:2] are outputs
-
 
     /* Port P[0] outputs the PWM signal to the LED matrix, which is the enable
      * signal into the decoder. This controls the brightness of the LED's. */
-    DDRP_DDRP0 = 1;         // Port P[0] is an output
-    MODRR_MODRR0 = 1;       // Port P[0] is a PWM port
+    DDRP_DDRP0 = 0x1;       // Port P[0] is an output
+    MODRR_MODRR0 = 0x1;     // Port P[0] is a PWM port
 
     /* Port AD[7] is the input for the analog source that controls
      * how bright the LED's are. This is a photodiode circuit that detects
@@ -64,8 +77,8 @@ void setup_ports()
      * This toggles whether or not the game is paused. Port B[1] is connected
      * to PB[1], which is the restart input for the game. This restarts the
      * game to its initial state. */
-    DDRB_BIT0 = 0;          // Port B[1:0] are inputs
-    DDRB_BIT1 = 0;
+    DDRB_BIT0 = 0x0;        // Port B[1:0] are inputs
+    DDRB_BIT1 = 0x0;
 
     return;
 }
@@ -73,10 +86,24 @@ void setup_ports()
 /* setup_serial
  *
  * Configures the serial module on the board to properly communicate
- * with the desktop computer
+ * with the desktop computer.
+ *
+ * The serial communication is only one-way, the computer transmitting to the
+ * board, so only the receiver is enabled. The receiver module generates an
+ * interrupt upon receiving a new message. The message format is an 8-bit UART
+ * format. The baud rate is 9600.
  */
 void setup_serial()
 {
+    SCICR2_RE = 0x1;            // Enable the receiver
+    SCICR2_RIE= 0x1;            // Enable receiver interrupts
+
+    SCICR1_PE = 0x0;            // Disable parity checking
+    SCICR1_M = 0x0;             // Set the data format as 1 start-bit, 8 data
+                                // bits, and one stop bit
+
+    SCIBD = SCI_CLOCK_SCALE;    // Set the baud rate to 38400
+
     return;
 }
 
@@ -95,7 +122,8 @@ void setup_pwm()
     PWMPOL_PPOL0 = 1;                   // Positive polarity
 
     PWMCLK_PCLK0 = 0;                   // Choose clock A
-    PWMPRCLK_PCKA = PWM_CLOCK_SCALE;    // Clock rate = 0.5Mhz = busclk/16
+    PWMPRCLK_PCKA = PWM_CLOCK_SCALE;    // Set the clock frequency to 0.5 Mhz
+                                        // (bus clock / 16)
 
     PWMCAE_CAE0 = 0;                    // Left aligned PWM
     PWMCTL_CON01 = 0;                   // No concatenation
@@ -108,32 +136,33 @@ void setup_pwm()
  * Configures the A/D converter on the module appropiately for the project.
  *
  * The A/D converter generates interrupts upon completion. The FIFO feature is
- * disabled, so there is simply a 1-register buffer.
+ * disabled, so there is simply a 1-register buffer. There is only one A/D
+ * converter used, so we setup a sequence of length 1.
  */
 void setup_atd()
 {
-
-    ATDCTL2_ASCIE = 1;              // Enable interrupt on conversion completion
     ATDCTL2_ADPU = 1;               // Turn on the A/D converter
-
-    ATDCTL3_FIFO = 0;               // FIFO disabled
+    ATDCTL2_ASCIE = 1;              // Enable interrupt on conversion completion
     ATDCTL3_FRZ  = 2;               // Finish current conversion then freeze
-    ATDCTL3_S8C = 0;                // Set sequence length to 2
+
+    ATDCTL5_MULT = 0;               // Single channel A/D conversion
+    ATDCTL3_S8C = 0;                // Set sequence length to 1
     ATDCTL3_S4C = 0;
-    ATDCTL3_S2C = 1;
-    ATDCTL3_S1C = 0;
+    ATDCTL3_S2C = 0;
+    ATDCTL3_S1C = 1;
+    ATDCTL5_CC = 0;                 // Start sequence at channel 0
+    ATDCTL5_CB = 0;
+    ATDCTL5_CA = 0;
 
     ATDCTL4_SRES8 = 1;              // 8 bit resolution
-    ATDCTL4_SMP = 0;                // Phase 2 sample time is 2 ATD clock periods
     ATDCTL4_PRS = ATD_CLOCK_SCALE;  // ATDclock = 666,666Hz
+    ATDCTL4_SMP = 0;                // Phase 2 sample time is 2 ATD clock
+                                    // periods
 
+    ATDCTL3_FIFO = 0;               // FIFO disabled
     ATDCTL5_DJM = 0;                // Left justified data storage
     ATDCTL5_DSGN = 0;               // Unsigned data representation
     ATDCTL5_SCAN = 1;               // Continuous conversion squences
-    ATDCTL5_MULT = 1;               // Multi-channel
-    ATDCTL5_CC = 0;                 // Start sequence at channel 0
-    ATDCTL5_CB = 0;                 // Sample channels 0, 1
-    ATDCTL5_CA = 0;
 
     return;
 }
@@ -141,21 +170,27 @@ void setup_atd()
 /* setup_timer
  *
  * Configures the timer on the module appropiately for this project.
- * See the comments below for the specific settings
+ *
+ * The timer is configured to genreate an update every 15 ms. This is slightly
+ * above what a person's persistance of vision (POV) is for light. Every timer
+ * interrupt, the next LED on the matrix is driven, and is held for the timer's
+ * period. Timer channel 7 is used to compare the value corresponding to 15 ms,
+ * and the timer is reset whenever it reaches the specified value.
  */
 void setup_timer()
 {
-    TSCR1_TEN = 1;                  // Enable timer
-    TSCR1_TSFRZ = 1;                // Disable in freeze mode
+    TSCR1_TEN = 1;                  // Enable the timer
+    TSCR1_TSFRZ = 1;                // Disable in freeze mode (for debugging)
+    // FIXME?
     TSCR1_TSWAI = 1;                // Disable in wait mode
 
-    TSCR2_TCRE = 1;                 // Reset timer on successful timer 7 compare
-    TSCR2_PR = TIMER_CLOCK_SCALE;   // Clock rate - 0.5Mhz
+    TSCR2_PR = TIMER_CLOCK_SCALE;   // Set the clock frequency to 0.5 Mhz
+                                    // (bus clock / 16)
 
-    TIOS_IOS7 = 1;                  // Enbale timer 7 output compare
-
-    TIE_C7I = 1;                    // Enable interrupt on successful compare
-    TC7 = INIT_TC7;                 // Interrupt every 100 ms initially
+    TIOS_IOS7 = 1;                  // Enbale timer channel 7 output compare
+    TSCR2_TCRE = 1;                 // Reset timer on successful compare
+    TIE_C7I = 1;                    // Interrupt on successful compare
+    TC7 = TIMER_TC7_CMP;            // Generate an interrupt every 15 ms
 
     return;
 }
