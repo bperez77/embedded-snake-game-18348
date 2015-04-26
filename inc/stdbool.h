@@ -10,14 +10,18 @@
  *
  * Created: Fri 24 Apr 2015 04:58:04 PM EDT
  * Last Modified: TODO: Update
+ *
+ * This file contains the equivalent version of the C standard library's
+ * header file stdbool.h. Contains the definition of the boolean type, and
+ * the constants true and false.
  */
 
 #ifndef STDBOOL_H_
 #define STDBOOL_H_
 
 // Values of true and false
-#define true        1
-#define false       0
+#define true        ((bool)1)
+#define false       ((bool)0)
 
 // Boolean is the smallest possible size
 typedef char bool;

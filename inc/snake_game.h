@@ -10,6 +10,10 @@
  *
  * Created: Fri 24 Apr 2015 03:55:24 PM EDT
  * Last Modified: TODO: Update
+ *
+ * This file contains the interface to the snake game module, the definition
+ * of the structure that represents the state of the game, and constants
+ * defining the pieces on the board and the size of the board.
  */
 
 #ifndef SNAKE_GAME_H_
@@ -30,16 +34,33 @@
 
 // The state of the snake game
 typedef struct {
-    bool paused;
-    bool game_over;
-    int score;
+    bool paused;        // Indicates if the game is paused
+    bool game_over;     // Indicates if the game has ended
+    int score;          // The score of the game
 
-    int head_row;
-    int head_col;
-    int drow;
-    int dcol;
+    int head_row;       // The row at which the head of the snake is
+    int head_col;       // The column at which the head of the snake is
+    int drow;           // The x direction of the snake
+    int dcol;           // The y direction of the snake
 
-    int board[SNAKE_ROWS][SNAKE_COLUMNS];
+    int board[SNAKE_ROWS][SNAKE_COLUMNS];   // The game board
 } snake_game_t;
+
+/* game_init
+ *
+ * Initializes the snake game. Setups up the snake on the board,
+ * generates a single item of food, and sets the game as paused.
+ */
+void game_init(snake_game_t *game);
+
+/* move_snake
+ *
+ * Moves the snake exactly one place, updating the board appropiately.
+ * The movement of the snake permits it to wrap around the board. If
+ * the head of the snakes moves into food, then it "eats" it, which
+ * causes its size to grow by one. If the snake intersects with itself,
+ * then the game ends.
+ */
+void move_snake(snake_game_t *game);
 
 #endif /* SNAKE_GAME_H_ */

@@ -10,6 +10,9 @@
  *
  * Created: Fri 24 Apr 2015 05:00:24 PM EDT
  * Last Modified: TODO: Update
+ *
+ * This file contains the equivalent version of the C standard library's
+ * header file stdint.h. Contains definitions for sized integers.
  */
 
 #ifndef STDINT_H_
