@@ -126,8 +126,8 @@ void move_snake(snake_game_t *game)
     }
 
     // Get the position of where the snake's going to move
-    next_row = wrap_add(game->head_row, game->drow, SNAKE_ROWS);
-    next_col = wrap_add(game->head_col, game->dcol, SNAKE_COLUMNS);
+    next_row = mod(game->head_row + game->drow, SNAKE_ROWS);
+    next_col = mod(game->head_col + game->dcol, SNAKE_COLUMNS);
 
     head_row = game->head_row;
     head_col = game->head_col;
@@ -208,27 +208,6 @@ static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS])
     return;
 }
 
-
-/* wrap_add
- *
- * Computes the sum of x and y, with the maximum value being limit,
- * and the minimum being 0. If x+y exceeds either of these values, then
- * it wraps around as necessary.
- */
-static int wrap_add(int x, int y, int limit)
-{
-    return (x + y) & (limit - 1);
-}
-
-/* mod
- *
- * Computes x % limit. Limit must be a power of 2. The modulo computed
- * is strictly non-negative.
- */
-static int mod(int x, int limit)
-{
-    return x & (limit - 1);
-}
 
 /* rand
  *
