@@ -69,14 +69,11 @@
 // The state of the snake game
 static snake_game_t game;
 
-// The buffers holding the next values of components of the game state
-static int next_brightness;
-static int next_drow;
-static int next_dcol;
-static bool next_paused;
-
 // Indicates that the game needs to be restarted
 static bool restart_game;
+
+// The measured brightness from the photodiode
+static int brightess;
 
 // The row and column of the LED currently being drawn
 static uint8_t row;
@@ -131,22 +128,47 @@ int main()
 
 void interrupt VectorNumber_Vsci sci_interrupt()
 {
-    // Acknowledge interrupt
+    uint8_t received_char;
 
-    // Read out character sent
-    // switch on character, check 'wasd'.
-    // Queue direction to be updated if the input is valid.
+    // Acknowledge serial interrupt and read the character sent
+    if (!SCISR1_RDRF) {
+        return;
+    }
+    received_char = SCIBDL;
+
+    /* Update the snake direction based on the received input. 'w' is up,
+     * 'a' is left, 's' is down, 'd' is right. */
+    switch (received_char)
+    {
+        case 'w':
+            game.drow = 0;
+            game.dcol = -1;
+            break;
+        case 'a':
+            game.drow = -1;
+            game.dcol = 0;
+            break;
+        case 's':
+            game.drow = 0;
+            game.dcol = 1;
+            break;
+        case 'd':
+            game.drow = 1;
+            game.dcol = 0;
+            break;
+    }
 
     return;
 }
 
 void interrupt VectorNumber_Vatd0 atd_interrupt()
 {
-    // Acknowledge interrupt
+    // Ackowledge the ATD interrupt
+    ATDSTAT0_SCF = 0x1;
 
-    // Read out new value
-
-    // Queue up brightness level to be updated
+    // Read out new brightness value, and update the duty cycle
+    brightness = ATDDR0H;
+    PWMDTY0 = brightness;
 
     return;
 }
@@ -175,13 +197,8 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
     }
 
     /* If we've completed a full drawing cycle (rows has rolled over),
-     * then update the game state with the new values from the buffer
-     * With the updated values, move the snake. */
+     * then move the snake. */
     if (game.row == 0) {
-        game.drow = next_drow;
-        game.dcol = next_dcol;
-        game.paused = next_paused;
-
         move_snake(&game);
     }
 
