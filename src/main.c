@@ -50,8 +50,21 @@
 #include "lcd_lib.h"
 
 // Project libraries
+#include "stdbool.h"
+#include "stdint.h"
+#include "bit_help.h"
 #include "setup.h"
 #include "snake_game.h"
+
+/*----------------------------------------------------------------------------
+ * Internal Definitions
+ *----------------------------------------------------------------------------*/
+
+// The bit positions for the row and column, inclusive
+#define ROW_START       2
+#define ROW_END         4
+#define COLUMN_START    5
+#define COLUMN_END      7
 
 // The state of the snake game
 static snake_game_t game;
@@ -60,8 +73,14 @@ static snake_game_t game;
 static int next_brightness;
 static int next_drow;
 static int next_dcol;
-static bool next_pause;
+static bool next_paused;
+
+// Indicates that the game needs to be restarted
 static bool restart_game;
+
+// The row and column of the LED currently being drawn
+static uint8_t row;
+static uint8_t col;
 
 /*----------------------------------------------------------------------------
  * Main Routine
@@ -83,9 +102,13 @@ int main()
     // Initialize the game state
     game_init(&game);
 
+    // Initialize the buffered values to the game's initial values
+    next_drow = game.drow;
+    next_dcol = game.dcol;
+    next_pause = game.paused;
+
     // Enable all interrupts
     EnableInterrupts;
-
 
     /* Loop forever, reading the user input, and updating the game
      * state appropiately. */
@@ -130,14 +153,37 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
 
 void interrupt VectorNumber_Vtimch7 tc7_interrupt()
 {
-    // Acknowledge interrupt
+    // Acknowledge the timer interrupt
+    TFLG1_C7F = 0x1;
 
-    // Increment internal (row, col), update port values
+    // Select the LED at (row, col)
+    PTT = set_bits(PTT, row, ROW_START, ROW_END);
+    PTT = set_bits(PTT, col, COLUMN_START, COLUMN_END);
 
-    // Increment updates
+    // Drive the selected LED only if it is the snake or food
+    if (game.board[row][col] == SNAKE_FOOD || game.board[row][col] > 0) {
+        PWMCNT0 = 0;
+        PWME0 = 0x1;
+    } else {
+        PWME0 = 0x0;
+    }
 
-    // If # updates is board size (64), then move all "queued up"
-    // values as the new values for the game (brightness, pause, etc.)
+    // Increment the row and column of the game
+    col = mod(col + 1, SNAKE_ROWS);
+    if (col == 0) {
+        row = mod(row + 1, SNAKE_COLS);
+    }
+
+    /* If we've completed a full drawing cycle (rows has rolled over),
+     * then update the game state with the new values from the buffer
+     * With the updated values, move the snake. */
+    if (game.row == 0) {
+        game.drow = next_drow;
+        game.dcol = next_dcol;
+        game.paused = next_paused;
+
+        move_snake(&game);
+    }
 
     return;
 }
