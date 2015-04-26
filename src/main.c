@@ -11,14 +11,33 @@
  * Created: Sat 25 Apr 2015 06:24:57 PM EDT
  * Last Modified: TODO: Update
  *
- * TODO: ENTER PROGRAM NAME HERE
+ * Snake Game
  *
- * TODO: ENTER PROGRAM DESCRIPTION HERE
+ * This project is a simple implementation of a snake game for the MC9S12C128
+ * Freescale module. The game runs on an 8x8 LED matrix on the project board,
+ * and is fully controlled by the module. The module outputs row and column
+ * numbers to two decoders, which drive a single LED at a time. The column
+ * decocder enable is driven by the module's PWM signal, to control the
+ * brightness of the LED's. The row enable serves to activate a single row.
+ * A photodiode measures the current ambient brightness of the room, and that
+ * is used to determine the duty cycle of the PWM signal, controlling the
+ * brightness.
  *
- * TODO: ENTER IF THIS IS STANDALONE OR EXTERNALLY VISIBLE MODULES
+ * The snake game goes by the standard rules. The snake attempts to eat as many
+ * food pieces on the board as it can. Each time a food is eaten, the score
+ * increases by 1, as does the size of the snake. This game has no walls on the
+ * board, so the snake can wrap around the board. The game ends whenever the
+ * snake intersects with itself. The game is controlled via a serial interface
+ * with the computer. The computer can change the direction of the snake with
+ * the old fashion directional controls: 'wasd'.
  *
  * Pin Connections:
- *     TODO: ENTER PIN CONNECTION SETUP HERE
+ *     Port AD[7] to Photodiode Output
+ *     Port B[0] to PB1
+ *     Port B[1] to PB2
+ *     Port T[4:2] to Select Input of the Row Decoder
+ *     Port T[7:5] to Select Input of Column Decoder
+ *     Port P[0] to Enable Input of the Row Decoder
  */
 
 // Freescale libraries
@@ -36,6 +55,13 @@
 
 // The state of the snake game
 static snake_game_t game;
+
+// The buffers holding the next values of components of the game state
+static int next_brightness;
+static int next_drow;
+static int next_dcol;
+static bool next_pause;
+static bool restart_game;
 
 /*----------------------------------------------------------------------------
  * Main Routine

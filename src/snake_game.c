@@ -43,7 +43,6 @@
 #define INIT_DROW             0
 #define INIT_DCOL            -1
 
-// TODO: Linear congruential generator for food
 // Parameters for the linear congruential PRNG
 #define RAND_MULTIPLIER     129
 #define RAND_OFFSET         251
