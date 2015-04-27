@@ -21,6 +21,10 @@
 
 #include "stdint.h"
 
+// The PWM period and initial duty cycle (80%)
+#define PWM_PERIOD      0xFF
+#define PWM_INIT_DUTY   0xCC
+
 /* setup_ports
  *
  * Configures the ports on the MCU appropiately for this project. See
@@ -52,8 +56,7 @@ void setup_serial();
  * The PWM is setup to output over channel 0 (Port P[0]). The PWM signal is
  * positive polarity, with a frequency of 0.5 Mhz (divided from the onboard
  * clock). The PWM is left-aligned, and we don't concatenate it with channel 1.
- * Thus the PWM duty cycle has 8-bit resolution. Sets the value pointed to by
- * brightness to the initial duty cycle.
+ * Thus the PWM duty cycle has 8-bit resolution.
  */
 void setup_pwm(uint8_t *brightness);
 

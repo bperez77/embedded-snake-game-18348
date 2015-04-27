@@ -76,6 +76,7 @@ static snake_game_t game;
 static bool restart_game;
 
 // The measured brightness from the photodiode
+static uint8_t
 static volatile uint8_t brightess;
 
 // The row and column of the LED currently being drawn
@@ -86,6 +87,15 @@ static uint8_t col;
  * Main Routine
  *----------------------------------------------------------------------------*/
 
+/* main
+ *
+ * The main routine.
+ *
+ * The main routine runs all of the setup an initialization code, then runs in
+ * a loop forever. In the loop, it reads the paused and restart game buttons,
+ * and update the state appropiately. Also, it displays the current score on the
+ * LCD screen, along with the A/D input value.
+ */
 int main()
 {
     char score_buf[BUFSIZE];
@@ -98,7 +108,7 @@ int main()
     // Setup the ports, serial communication, PWM, A/D, and timer
     setup_ports();
     setup_serial();
-    setup_pwm(&brightness);
+    setup_pwm();
     setup_atd();
     setup_timer();
 
@@ -106,6 +116,7 @@ int main()
     row = 0;
     col = 0;
     restart_game = false;
+    brightness = PWM_INIT_DUTY;
     game_init(&game);
 
     // Enable all interrupts
@@ -140,6 +151,13 @@ int main()
  * Interrupts
  *----------------------------------------------------------------------------*/
 
+/* sci_interrupt
+ *
+ * This function handles interrupts from the onboard SCI (serial) module,
+ * specifically whenever a new data byte is received. This function reads the
+ * byte as a character, then updates the snake direction appropiately. 'w'
+ * is up, 'a' is left, 's' is down, and 'd' is right.
+ */
 void interrupt VectorNumber_Vsci sci_interrupt()
 {
     uint8_t received_char;
@@ -175,6 +193,13 @@ void interrupt VectorNumber_Vsci sci_interrupt()
     return;
 }
 
+/* atd_interrupt
+ *
+ * This function handles interrupts from the A/D converter module, which
+ * occurs whenever a new conversion is ready. This function simply reads
+ * the conversion as the ambient brightness, then updates the duty cycle
+ * of the PWM to counteract this brightness.
+ */
 void interrupt VectorNumber_Vatd0 atd_interrupt()
 {
     // Ackowledge the ATD interrupt
@@ -182,11 +207,20 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
 
     // Read out new brightness value, and update the duty cycle
     brightness = ATDDR0H;
-    PWMDTY0 = brightness;
+    PWMDTY0 = PWM_PERIOD - brightness;
 
     return;
 }
 
+/* tc7_interrupt
+ *
+ * This function handles interrupts from the Timer module, which occurs
+ * whenever the timer counter value is equal to the comparison value on
+ * channel 7 (every 15 ms). This function draws the next LED on the board,
+ * and adjusts the PWM appropiately. If a complete drawing cycle is complete,
+ * then this function either moves the snake, or resets the game, if the user
+ * pressed the reset game button.
+ */
 void interrupt VectorNumber_Vtimch7 tc7_interrupt()
 {
     // Acknowledge the timer interrupt

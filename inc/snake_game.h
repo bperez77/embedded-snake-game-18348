@@ -46,12 +46,12 @@ typedef struct {
     int board[SNAKE_ROWS][SNAKE_COLUMNS];   // The game board
 } snake_game_t;
 
-/* game_init
+/* snake_init
  *
  * Initializes the snake game. Setups up the snake on the board,
  * generates a single item of food, and sets the game as paused.
  */
-void game_init(snake_game_t *game);
+void snake_init(snake_game_t *game);
 
 /* move_snake
  *
