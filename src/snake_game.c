@@ -27,6 +27,7 @@
  */
 
 #include "snake_game.h"
+#include "bit_help.h"
 
 /*-----------------------------------------------------------------
  * Internal Definitions
@@ -35,9 +36,9 @@
 // The initial snake length
 #define INIT_SNAKE_LEN        1
 
-// Starting position of the snake head
-#define INIT_HEAD_ROW (SNAKE_ROWS/2 - INIT_SNAKE_LEN/2)
-#define INIT_HEAD_COL (SNAKE_COLUMNS / 2)
+// The initial position of the snake head
+#define INIT_HEAD_ROW   (SNAKE_ROWS / 2)
+#define INIT_HEAD_COL   (SNAKE_COLUMNS/2 - INIT_SNAKE_LEN/2)
 
 // The initial direction of the snake
 #define INIT_DROW             0
@@ -55,8 +56,6 @@
 static int seed = RAND_SEED;
 
 static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS]);
-static int wrap_add(int x, int y, int limit);
-static int mod(int x, int limit);
 static int rand();
 
 /*-----------------------------------------------------------------
@@ -78,8 +77,8 @@ void snake_init(snake_game_t *game)
     game->score = INIT_SNAKE_LEN;
 
     // Initialize the snake position and direction
-    game->head_row = INIT_HEAD_ROW / 2;
-    game->head_col = INIT_HEAD_COL/2 - INIT_SNAKE_LEN/2;
+    game->head_row = INIT_HEAD_ROW;
+    game->head_col = INIT_HEAD_COL;
     game->drow = INIT_DROW;
     game->dcol = INIT_DCOL;
 
@@ -127,8 +126,11 @@ void move_snake(snake_game_t *game)
     next_row = mod(game->head_row + game->drow, SNAKE_ROWS);
     next_col = mod(game->head_col + game->dcol, SNAKE_COLUMNS);
 
+    // Update the head of the snake
     head_row = game->head_row;
     head_col = game->head_col;
+    game->head_row = next_row;
+    game->head_col = next_col;
 
     /* If the next posiition contains food, then add a piece to the
      * snake and increment the score. If another portion of the
@@ -141,6 +143,8 @@ void move_snake(snake_game_t *game)
         return;
     } else if (game->board[next_row][next_col] > 0) {
         game->game_over = true;
+        game->head_row = head_row;
+        game->head_col = head_col;
         return;
     }
 

@@ -19,6 +19,8 @@
 #ifndef BIT_HELP_H_
 #define BIT_HELP_H_
 
+#include "stdint.h"
+
 /* mask_below
  *
  * Generates a mask that masks out the bits below and including bit_pos,
@@ -55,6 +57,6 @@ uint8_t set_bits(uint8_t x, uint8_t y, int8_t lower, int8_t upper);
  * Computes x % limit. Limit must be a power of 2. The modulo computed
  * is strictly non-negative.
  */
-static int mod(int x, int limit);
+int mod(int x, int limit);
 
 #endif /* BIT_HELP_H_ */

@@ -45,3 +45,6 @@ log.txt
 *.pyg
 *.synctex.gz
 *.dvi
+
+# Executable created by Makefile
+snake_test

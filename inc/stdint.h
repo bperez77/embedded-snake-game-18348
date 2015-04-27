@@ -25,7 +25,7 @@ typedef long int32_t;
 
 // Definitions for unsigned types
 typedef unsigned char uint8_t;
-typedef unsigned int uint16_t
+typedef unsigned int uint16_t;
 typedef unsigned long uint32_t;
 
 #endif /* STDINT_H_ */
