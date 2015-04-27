@@ -66,6 +66,9 @@
 #define COLUMN_START    5
 #define COLUMN_END      7
 
+// The size of the buffer to store strings
+#define BUF_SIZE
+
 // The state of the snake game
 static snake_game_t game;
 
@@ -73,7 +76,7 @@ static snake_game_t game;
 static bool restart_game;
 
 // The measured brightness from the photodiode
-static int brightess;
+static volatile uint8_t brightess;
 
 // The row and column of the LED currently being drawn
 static uint8_t row;
@@ -85,6 +88,9 @@ static uint8_t col;
 
 int main()
 {
+    char score_buf[BUFSIZE];
+    char atd_buf[BUFSIZE];
+
     // Setup the clock and LCD
     clockSetup();
     lcdSetup();
@@ -92,33 +98,41 @@ int main()
     // Setup the ports, serial communication, PWM, A/D, and timer
     setup_ports();
     setup_serial();
-    setup_pwm();
+    setup_pwm(&brightness);
     setup_atd();
     setup_timer();
 
     // Initialize the game state
+    row = 0;
+    col = 0;
+    restart_game = false;
     game_init(&game);
-
-    // Initialize the buffered values to the game's initial values
-    next_drow = game.drow;
-    next_dcol = game.dcol;
-    next_pause = game.paused;
 
     // Enable all interrupts
     EnableInterrupts;
 
+    // TODO: Maybe software debouncing is needed?
     /* Loop forever, reading the user input, and updating the game
      * state appropiately. */
     for (;;)
     {
-        // Check paused button
+        // Check if the pause button was pressed, and toggle the pause
+        if (!PORTB_BIT0) {
+            game.paused = !game.paused;
+        }
 
-        // Check reset button
+        // Check if the reset button was pressed
+        if (!PORTB_BIT0) {
+            restart_game = true;
+        }
 
-        // Display to the LCD's
+        // Format the strings for the score and brightness
+        sprintf(score_buf, "Score: %d", game.score);
+        sprintf(atd_buf, "Brightness: 0x%02x", brightness);
 
-        // Check if a board update cycle has happened
-        // If so, update the paused state, or reset the game as per the presses
+        // Display the score and brightness A/D conversion to the LED's
+        lcdWriteLine(1, score_buf);
+        lcdWriteLine(2, atd_buf);
     }
 }
 
@@ -178,16 +192,16 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
     // Acknowledge the timer interrupt
     TFLG1_C7F = 0x1;
 
-    // Select the LED at (row, col)
-    PTT = set_bits(PTT, row, ROW_START, ROW_END);
+    // Select the LED at (row, col). Match the assertion level for each
+    PTT = set_bits(PTT, ~row, ROW_START, ROW_END);
     PTT = set_bits(PTT, col, COLUMN_START, COLUMN_END);
 
     // Drive the selected LED only if it is the snake or food
     if (game.board[row][col] == SNAKE_FOOD || game.board[row][col] > 0) {
         PWMCNT0 = 0;
-        PWME0 = 0x1;
+        PWM_PWME0 = 0x1;
     } else {
-        PWME0 = 0x0;
+        PWM_PWME0 = 0x0;
     }
 
     // Increment the row and column of the game
@@ -197,8 +211,12 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
     }
 
     /* If we've completed a full drawing cycle (rows has rolled over),
-     * then move the snake. */
-    if (game.row == 0) {
+     * then check if the user requested a reset. If so, reset the game,
+     * otherwise, move the snake. */
+    if (game.row == 0 && restart_game) {
+        snake_init(&game);
+        restart_game = false;
+    } else if (game.row == 0) {
         move_snake(&game);
     }
 

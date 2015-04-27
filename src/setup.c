@@ -28,6 +28,8 @@
 #include <mc9s12c128.h>     /* derivative information */
 #pragma LINK_INFO DERIVATIVE "mc9s12c128"
 
+#include "stdint.h"
+
 /*----------------------------------------------------------------------------
  * Internal Definitions
  *----------------------------------------------------------------------------*/
@@ -37,6 +39,10 @@
 #define ATD_CLOCK_SCALE                5
 #define TIMER_CLOCK_SCALE              4
 #define SCI_CLOCK_SCALE               52
+
+// The PWM period and initial duty cycle (80%)
+#define PWM_PERIOD      0xFF
+#define PWM_INIT_DUTY   0xCC
 
 // The value of the timer to generate an interrupt for (every 15 ms)
 #define TIMER_TC7_CMP               7500
@@ -114,9 +120,10 @@ void setup_serial()
  * The PWM is setup to output over channel 0 (Port P[0]). The PWM signal is
  * positive polarity, with a frequency of 0.5 Mhz (divided from the onboard
  * clock). The PWM is left-aligned, and we don't concatenate it with channel 1.
- * Thus the PWM duty cycle has 8-bit resolution.
+ * Thus the PWM duty cycle has 8-bit resolution. Sets the value pointed to by
+ * brightness to the initial duty cycle.
  */
-void setup_pwm()
+void setup_pwm(uint8_t *brightness)
 {
     PWME_PWME0 = 1;                     // Enable PWM Channel 0
     PWMPOL_PPOL0 = 1;                   // Positive polarity
@@ -127,6 +134,12 @@ void setup_pwm()
 
     PWMCAE_CAE0 = 0;                    // Left aligned PWM
     PWMCTL_CON01 = 0;                   // No concatenation
+
+    PWMPER0 = PWM_PERIOD;               // The period is 255 cycles
+    PWMDTY0 = PWM_INIT_DUTY;            // The initial duty cycle is 80%
+
+    // Set the brightness to the initial duty cycle
+    *brightness = PWM_INIT_DUTY;
 
     return;
 }
