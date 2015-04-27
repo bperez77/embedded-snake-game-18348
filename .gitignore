@@ -48,3 +48,6 @@ log.txt
 
 # Executable created by Makefile
 snake_test
+
+# Name of the Freescale project
+snake

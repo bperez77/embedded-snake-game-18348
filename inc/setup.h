@@ -35,7 +35,7 @@
  * of the measured ambient brightness of the room. Port B[0] is the pause button
  * input, and Port B[1] is the restart button input.
  */
-void setup_ports();
+void setup_ports(void);
 
 /* setup_serial
  *
@@ -47,7 +47,7 @@ void setup_ports();
  * interrupt upon receiving a new message. The message format is an 8-bit UART
  * format. The baud rate is 9600.
  */
-void setup_serial();
+void setup_serial(void);
 
 /* setup_pwm
  *
@@ -58,7 +58,7 @@ void setup_serial();
  * clock). The PWM is left-aligned, and we don't concatenate it with channel 1.
  * Thus the PWM duty cycle has 8-bit resolution.
  */
-void setup_pwm(uint8_t *brightness);
+void setup_pwm(void);
 
 /* setup_atd
  *
@@ -68,7 +68,7 @@ void setup_pwm(uint8_t *brightness);
  * disabled, so there is simply a 1-register buffer. There is only one A/D
  * converter used, so we setup a sequence of length 1.
  */
-void setup_atd();
+void setup_atd(void);
 
 /* setup_timer
  *
@@ -80,6 +80,6 @@ void setup_atd();
  * period. Timer channel 7 is used to compare the value corresponding to 15 ms,
  * and the timer is reset whenever it reaches the specified value.
  */
-void setup_timer();
+void setup_timer(void);
 
 #endif /* SETUP_H_ */

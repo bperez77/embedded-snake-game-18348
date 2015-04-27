@@ -31,6 +31,9 @@
  * with the computer. The computer can change the direction of the snake with
  * the old fashion directional controls: 'wasd'.
  *
+ * Externally Visible Items:
+ *     void main()   
+ *
  * Pin Connections:
  *     Port AD[7] to Photodiode Output
  *     Port B[0] to PB1
@@ -43,6 +46,7 @@
 // Freescale libraries
 #include <hidef.h>
 #include <mc9s12c128.h>
+#include <stdio.h>
 #pragma LINK_INFO DERIVATIVE "mc9s12c128"
 
 // 348 libraries
@@ -61,13 +65,13 @@
  *----------------------------------------------------------------------------*/
 
 // The bit positions for the row and column, inclusive
-#define ROW_START       2
-#define ROW_END         4
-#define COLUMN_START    5
-#define COLUMN_END      7
+#define ROW_START        2
+#define ROW_END          4
+#define COLUMN_START     5
+#define COLUMN_END       7
 
 // The size of the buffer to store strings
-#define BUF_SIZE
+#define BUFSIZE         20
 
 // The state of the snake game
 static snake_game_t game;
@@ -76,8 +80,7 @@ static snake_game_t game;
 static bool restart_game;
 
 // The measured brightness from the photodiode
-static uint8_t
-static volatile uint8_t brightess;
+static volatile uint8_t brightness;
 
 // The row and column of the LED currently being drawn
 static uint8_t row;
@@ -96,7 +99,7 @@ static uint8_t col;
  * and update the state appropiately. Also, it displays the current score on the
  * LCD screen, along with the A/D input value.
  */
-int main()
+void main()
 {
     char score_buf[BUFSIZE];
     char atd_buf[BUFSIZE];
@@ -117,7 +120,7 @@ int main()
     col = 0;
     restart_game = false;
     brightness = PWM_INIT_DUTY;
-    game_init(&game);
+    snake_init(&game);
 
     // Enable all interrupts
     EnableInterrupts;
@@ -133,13 +136,13 @@ int main()
         }
 
         // Check if the reset button was pressed
-        if (!PORTB_BIT0) {
+        if (!PORTB_BIT1) {
             restart_game = true;
         }
 
         // Format the strings for the score and brightness
-        sprintf(score_buf, "Score: %d", game.score);
-        sprintf(atd_buf, "Brightness: 0x%02x", brightness);
+        (void)sprintf(score_buf, "Score: %d", game.score);
+        (void)sprintf(atd_buf, "Brightness: 0x%02x", brightness);
 
         // Display the score and brightness A/D conversion to the LED's
         lcdWriteLine(1, score_buf);
@@ -233,24 +236,24 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
     // Drive the selected LED only if it is the snake or food
     if (game.board[row][col] == SNAKE_FOOD || game.board[row][col] > 0) {
         PWMCNT0 = 0;
-        PWM_PWME0 = 0x1;
+        PWME_PWME0 = 0x1;
     } else {
-        PWM_PWME0 = 0x0;
+        PWME_PWME0 = 0x0;
     }
 
     // Increment the row and column of the game
-    col = mod(col + 1, SNAKE_ROWS);
+    col = mod_8(col + 1, SNAKE_ROWS);
     if (col == 0) {
-        row = mod(row + 1, SNAKE_COLS);
+        row = mod_8(row + 1, SNAKE_COLUMNS);
     }
 
     /* If we've completed a full drawing cycle (rows has rolled over),
      * then check if the user requested a reset. If so, reset the game,
      * otherwise, move the snake. */
-    if (game.row == 0 && restart_game) {
+    if (row == 0 && restart_game) {
         snake_init(&game);
         restart_game = false;
-    } else if (game.row == 0) {
+    } else if (row == 0) {
         move_snake(&game);
     }
 

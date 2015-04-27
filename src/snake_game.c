@@ -56,7 +56,7 @@
 static int seed = RAND_SEED;
 
 static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS]);
-static int rand();
+static int rand(void);
 
 /*-----------------------------------------------------------------
  * Inteface Functions
@@ -123,8 +123,8 @@ void move_snake(snake_game_t *game)
     }
 
     // Get the position of where the snake's going to move
-    next_row = mod(game->head_row + game->drow, SNAKE_ROWS);
-    next_col = mod(game->head_col + game->dcol, SNAKE_COLUMNS);
+    next_row = mod_16(game->head_row + game->drow, SNAKE_ROWS);
+    next_col = mod_16(game->head_col + game->dcol, SNAKE_COLUMNS);
 
     // Update the head of the snake
     head_row = game->head_row;
@@ -186,8 +186,8 @@ static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS])
     // Attempt to randomly generate a new position for the food
     for (i = 0; i < MAX_FOOD_TRIES; i++)
     {
-        food_row = mod(rand(), SNAKE_ROWS);
-        food_col = mod(rand(), SNAKE_COLUMNS);
+        food_row = mod_16(rand(), SNAKE_ROWS);
+        food_col = mod_16(rand(), SNAKE_COLUMNS);
         if (board[food_row][food_col] == SNAKE_EMPTY) {
             board[food_row][food_col] = SNAKE_FOOD;
             return;

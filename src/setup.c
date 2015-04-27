@@ -29,6 +29,7 @@
 #pragma LINK_INFO DERIVATIVE "mc9s12c128"
 
 #include "stdint.h"
+#include "setup.h"
 
 /*----------------------------------------------------------------------------
  * Internal Definitions

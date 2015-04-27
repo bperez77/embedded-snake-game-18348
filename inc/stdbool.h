@@ -19,11 +19,11 @@
 #ifndef STDBOOL_H_
 #define STDBOOL_H_
 
+// Boolean is the smallest possible size
+typedef char bool;
+
 // Values of true and false
 #define true        ((bool)1)
 #define false       ((bool)0)
-
-// Boolean is the smallest possible size
-typedef char bool;
 
 #endif /* STDBOOL_H_ */

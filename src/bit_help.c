@@ -34,7 +34,7 @@ uint8_t mask_below(int8_t bit_pos)
  */
 uint8_t mask_above(int8_t bit_pos)
 {
-    return (uint8_t)(-(((uint16_t)1) << bit_pos));
+    return (uint8_t)(-(((int16_t)1) << bit_pos));
 }
 
 /* mask_between
@@ -61,12 +61,22 @@ uint8_t set_bits(uint8_t x, uint8_t y, int8_t lower, int8_t upper)
            ((y & mask_between(0, upper-lower)) << lower);
 }
 
-/* mod
+/* mod_8
  *
  * Computes x % limit. Limit must be a power of 2. The modulo computed
- * is strictly non-negative.
+ * is strictly non-negative. This function is for 8-bit types.
  */
-int mod(int x, int limit)
+uint8_t mod_8(uint8_t x, uint8_t limit)
+{
+    return x & (limit - 1);
+}
+
+/* mod_16
+ *
+ * Computes x % limit. Limit must be a power of 2. The modulo computed
+ * is strictly non-negative. This function is for 16-bit types.
+ */
+uint16_t mod_16(uint16_t x, uint16_t limit)
 {
     return x & (limit - 1);
 }
