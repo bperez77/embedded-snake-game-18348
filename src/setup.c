@@ -44,9 +44,29 @@
 // The value of the timer to generate an interrupt for (every 15 ms)
 #define TIMER_TC7_CMP               7500
 
+// The value to set the number of cycles before a watchdog timeout
+#define WATCH_OSCLK                    6
+
 /*----------------------------------------------------------------------------
  * Interface Functions
  *----------------------------------------------------------------------------*/
+
+/* setup_watchdog
+ *
+ * Configures the watchdog timer for this project.
+ *
+ * The watchdog timer is kicked in the mainloop if all of the watch_flags
+ * are set by the timer interrupt, atd interrupt, main loop and sci interrupt.
+ * The watchdog timer operates in a non windowed mode 
+ * and takes 1 second to time out
+ */
+
+void setup_watchdog()
+{
+    COPCTL_WCOP  =  0; // disable windowed mode
+    COPCTL_RSBCK =  0; // disable the watchdog while debugging
+    COPCTL_CR    =  WATCH_OSCLK;
+}
 
 /* setup_ports
  *
