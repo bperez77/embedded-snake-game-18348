@@ -63,12 +63,23 @@
 /*----------------------------------------------------------------------------
  * Internal Definitions
  *----------------------------------------------------------------------------*/
+// Watchdog flags
+
+#define MAINLOOP_ALIVE 1
+#define SCI_ALIVE      2
+#define TIMER_ALIVE    4
+#define ATD_ALIVE      8
+
+#define ALL_TASKS_ALIVE 0xF
 
 // The bit positions for the row and column, inclusive
 #define ROW_START        2
 #define ROW_END          4
 #define COLUMN_START     5
 #define COLUMN_END       7
+
+// The flag read by the watchdog
+static volatile watch_flag;
 
 // The size of the buffer to store strings
 #define BUFSIZE         20
@@ -85,6 +96,9 @@ static volatile uint8_t brightness;
 // The row and column of the LED currently being drawn
 static uint8_t row;
 static uint8_t col;
+
+// Watchdog function prototype
+void kick_dog(void);
 
 /*----------------------------------------------------------------------------
  * Main Routine
@@ -103,6 +117,9 @@ void main()
 {
     char score_buf[BUFSIZE];
     char atd_buf[BUFSIZE];
+
+    // Setup watchdog
+    setup_watchdog();
 
     // Setup the clock and LCD
     clockSetup();
@@ -130,6 +147,9 @@ void main()
      * state appropiately. */
     for (;;)
     {
+        // Set mainloop watchflag
+        watch_flag |= MAINLOOP_ALIVE;
+
         // Check if the pause button was pressed, and toggle the pause
         if (!PORTB_BIT0) {
             game.paused = !game.paused;
@@ -147,6 +167,12 @@ void main()
         // Display the score and brightness A/D conversion to the LED's
         lcdWriteLine(1, score_buf);
         lcdWriteLine(2, atd_buf);
+
+        if(watch_flag==ALL_TASKS_ALIVE)
+        {
+          watch_flag = 0;
+          kick_dog();
+        }
     }
 }
 
@@ -170,6 +196,9 @@ void interrupt VectorNumber_Vsci sci_interrupt()
         return;
     }
     received_char = SCIBDL;
+
+    // Set the SCI watchflag
+    watch_flag |= SCI_ALIVE;
 
     /* Update the snake direction based on the received input. 'w' is up,
      * 'a' is left, 's' is down, 'd' is right. */
@@ -208,6 +237,9 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
     // Ackowledge the ATD interrupt
     ATDSTAT0_SCF = 0x1;
 
+    // Set the ATD watchflag
+    watch_flag |= ATD_ALIVE;
+
     // Read out new brightness value, and update the duty cycle
     brightness = ATDDR0H;
     PWMDTY0 = PWM_PERIOD - brightness;
@@ -228,6 +260,9 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
 {
     // Acknowledge the timer interrupt
     TFLG1_C7F = 0x1;
+
+    // Set task watchflag
+    watch_flag |= TIMER_ALIVE;
 
     // Select the LED at (row, col)
     PTT = set_bits(PTT, row, ROW_START, ROW_END);
@@ -259,4 +294,28 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
     }
 
     return;
+}
+
+/*----------------------------------------------------------------------------
+ * Watchdog
+ *----------------------------------------------------------------------------*/
+
+/*
+ * Kick the watchdog to reset the timer and thus
+ * prevent a watchdog reset
+ */
+void kick_dog(void)
+{
+  ARMCOP = 0x55;
+  ARMCOP = 0xAA;
+}
+
+/*
+ * Watchdog interrupt:
+ * Writes an error message to the LCD display
+ */
+void interrupt VectorNumber_Vcop watchdog_interrupt()
+{
+  lcdWriteLine(1, "Watchdog");
+  lcdWriteLine(2, "Error");
 }
