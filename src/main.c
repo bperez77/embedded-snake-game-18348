@@ -32,7 +32,7 @@
  * the old fashion directional controls: 'wasd'.
  *
  * Externally Visible Items:
- *     void main()   
+ *     void main()
  *
  * Pin Connections:
  *     Port AD[7] to Photodiode Output
@@ -229,16 +229,17 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
     // Acknowledge the timer interrupt
     TFLG1_C7F = 0x1;
 
-    // Select the LED at (row, col). Match the assertion level for each
-    PTT = set_bits(PTT, ~row, ROW_START, ROW_END);
+    // Select the LED at (row, col)
+    PTT = set_bits(PTT, row, ROW_START, ROW_END);
     PTT = set_bits(PTT, col, COLUMN_START, COLUMN_END);
 
-    // Drive the selected LED only if it is the snake or food
-    if (game.board[row][col] == SNAKE_FOOD || game.board[row][col] > 0) {
+    /* Drive the selected LED only if it is the snake or food. Reset the PWM
+     * period counter so that we don't get an irregular period. */
+    if (game.board[row][col] == SNAKE_EMPTY) {
+        PWME_PWME0 = 0x0;
+    } else {
         PWMCNT0 = 0;
         PWME_PWME0 = 0x1;
-    } else {
-        PWME_PWME0 = 0x0;
     }
 
     // Increment the row and column of the game
