@@ -23,14 +23,14 @@
 
 /* The size of the game board in rows and columns. Each dimension
  * must be a power of 2, or food generation will not work properly. */
-#define SNAKE_ROWS        8
-#define SNAKE_COLUMNS     8
+#define SNAKE_ROWS           8
+#define SNAKE_COLUMNS        8
 
 /* Food is represented by -1, an empty spot by 0, and any part of
  * the snake is represented by a positive integer. The head is the
  * highest number. */
-#define SNAKE_FOOD         -1
-#define SNAKE_EMPTY         0
+#define SNAKE_FOOD          -1
+#define SNAKE_EMPTY          0
 
 // The state of the snake game
 typedef struct {
