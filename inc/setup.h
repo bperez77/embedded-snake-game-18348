@@ -82,4 +82,15 @@ void setup_atd(void);
  */
 void setup_timer(void);
 
+/* setup_watchdog
+ *
+ * Configures the watchdog timer for this project.
+ *
+ * The watchdog timer is kicked in the mainloop if all of the watch_flags
+ * are set by the timer interrupt, atd interrupt, main loop and sci interrupt.
+ * The watchdog timer operates in a non windowed mode
+ * and takes 1 second to time out
+ */
+void setup_watchdog(void);
+
 #endif /* SETUP_H_ */
