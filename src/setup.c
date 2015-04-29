@@ -190,8 +190,6 @@ void setup_timer()
 {
     TSCR1_TEN = 1;                  // Enable the timer
     TSCR1_TSFRZ = 1;                // Disable in freeze mode (for debugging)
-    // FIXME?
-    TSCR1_TSWAI = 1;                // Disable in wait mode
 
     TSCR2_PR = TIMER_CLOCK_SCALE;   // Set the clock frequency to 0.5 Mhz
                                     // (bus clock / 16)
