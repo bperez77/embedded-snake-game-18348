@@ -214,6 +214,6 @@ void setup_timer()
 void setup_watchdog()
 {
     COPCTL_WCOP = 0;            // Disable windowed mode
-    COPCTL_RSBCK = 0;           // Disable the watchdog while debugging
+    COPCTL_RSBCK = 1;           // Disable the watchdog while debugging
     COPCTL_CR = WATCH_OSCLK;    // The watchdog times out after 1.05 s
 }
