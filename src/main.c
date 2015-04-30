@@ -161,7 +161,7 @@ void main()
 
         // Format the strings for the score and brightness
         (void)sprintf(score_buf, "Score: %d", game.score);
-        (void)sprintf(atd_buf, "Brightness: 0x%02x", brightness);
+        (void)sprintf(atd_buf, "Bg: 0x%02x", brightness);
 
         // Display the score and brightness A/D conversion to the LED's
         lcdWriteLine(1, score_buf);

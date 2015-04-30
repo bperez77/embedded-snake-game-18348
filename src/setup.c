@@ -76,8 +76,8 @@ void setup_ports()
     /* Port AD[7] is the input for the analog source that controls
      * how bright the LED's are. This is a photodiode circuit that detects
      * the ambient light in the room. */
-    ATDDIEN_IEN7 = 0xFC;    // Port AD[7] is an analog port
-    DDRAD_DDRAD7 = 0x00;    // Port AD[7] is an input port
+    ATDDIEN_IEN7 = 0x0;     // Port AD[7] is an analog port
+    DDRAD_DDRAD7 = 0x0;     // Port AD[7] is an input port
 
     /* Port B[0] is connected to PB[0], which is the pause input for the game.
      * This toggles whether or not the game is paused. Port B[1] is connected
