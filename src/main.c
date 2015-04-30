@@ -328,6 +328,7 @@ void interrupt VectorNumber_Vcop watchdog_interrupt()
     lcdWriteLine(2, "Error");
 
     // FIXME: Add Some sleeping or looping so user can see the message
+    // FIXME: Should call main() from here. Left out for debugging purposes
 
     return;
 }

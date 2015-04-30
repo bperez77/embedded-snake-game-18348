@@ -155,10 +155,6 @@ void setup_atd()
     ATDCTL3_FRZ  = 2;               // Finish current conversion then freeze
 
     ATDCTL5_MULT = 0;               // Single channel A/D conversion
-    ATDCTL3_S8C = 0;                // Set sequence length to 1
-    ATDCTL3_S4C = 0;
-    ATDCTL3_S2C = 0;
-    ATDCTL3_S1C = 1;
     ATDCTL5_CC = 1;                 // Sample the input from Port AD[7]
     ATDCTL5_CB = 1;
     ATDCTL5_CA = 1;
