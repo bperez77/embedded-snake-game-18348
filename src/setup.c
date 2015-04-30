@@ -159,9 +159,9 @@ void setup_atd()
     ATDCTL3_S4C = 0;
     ATDCTL3_S2C = 0;
     ATDCTL3_S1C = 1;
-    ATDCTL5_CC = 0;                 // Start sequence at channel 0
-    ATDCTL5_CB = 0;
-    ATDCTL5_CA = 0;
+    ATDCTL5_CC = 1;                 // Sample the input from Port AD[7]
+    ATDCTL5_CB = 1;
+    ATDCTL5_CA = 1;
 
     ATDCTL4_SRES8 = 1;              // 8 bit resolution
     ATDCTL4_PRS = ATD_CLOCK_SCALE;  // ATDclock = 666,666Hz
