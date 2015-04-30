@@ -80,7 +80,7 @@
 #define COLUMN_END       7
 
 // The size of the buffer to store strings
-#define BUFSIZE         20
+#define BUFSIZE         10
 
 // The flag read by the watchdog
 static volatile watch_flag;
@@ -276,40 +276,42 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
  */
 void interrupt VectorNumber_Vtimch7 tc7_interrupt()
 {
+    int8_t row, col;
+
     // Acknowledge the timer interrupt
     TFLG1_C7F = 0x1;
 
-    // Indicate that the timer/game update task is alive
-    watch_flag |= TIMER_ALIVE;
+    // Draw a frame, the entire snake board
+    for (row = 0; row < SNAKE_ROWS; row++)
+    {
+        for (col = 0; col < SNAKE_COLUMNS; col++)
+        {
+            // Select the LED at (row, col)
+            PTT = set_bits(PTT, row, ROW_START, ROW_END);
+            PTT = set_bits(PTT, col, COLUMN_START, COLUMN_END);
 
-    // Select the LED at (row, col)
-    PTT = set_bits(PTT, row, ROW_START, ROW_END);
-    PTT = set_bits(PTT, col, COLUMN_START, COLUMN_END);
-
-    /* Drive the selected LED only if it is the snake or food. Reset the PWM
-     * period counter so that we don't get an irregular period. */
-    if (game.board[row][col] == SNAKE_EMPTY) {
-        PWME_PWME0 = 0x0;
-    } else {
-        PWMCNT0 = 0;
-        PWME_PWME0 = 0x1;
+            /* Drive the selected LED only if it is the snake or food. Reset the
+             * PWM period counter so that we don't get an irregular period. */
+            if (game.board[row][col] == SNAKE_EMPTY) {
+                PWME_PWME0 = 0x0;
+            } else {
+                PWMCNT0 = 0;
+                PWME_PWME0 = 0x1;
+            }
+        }
     }
 
-    // Increment the row and column of the game
-    col = mod_8(col + 1, SNAKE_ROWS);
-    if (col == 0) {
-        row = mod_8(row + 1, SNAKE_COLUMNS);
-    }
-
-    /* If we've completed a full drawing cycle (rows has rolled over),
-     * then check if the user requested a reset. If so, reset the game,
-     * otherwise, move the snake. */
-    if (row == 0 && restart_game) {
+    /* Check if the user requested a reset. If so, reset the game.
+     * Otherwise, move the snake. */
+    if (restart_game) {
         snake_init(&game);
         restart_game = false;
-    } else if (row == 0) {
+    } else {
         move_snake(&game);
     }
+
+    // Indicate that the timer/game update task is alive
+    watch_flag |= TIMER_ALIVE;
 
     return;
 }

@@ -36,16 +36,16 @@
  *----------------------------------------------------------------------------*/
 
 // Clock dividers for the A/D converter, serial module, and PWM module
-#define PWM_CLOCK_SCALE                4
-#define ATD_CLOCK_SCALE                5
-#define TIMER_CLOCK_SCALE              4
-#define SCI_CLOCK_SCALE               52
+#define PWM_CLOCK_SCALE                 4
+#define ATD_CLOCK_SCALE                 5
+#define TIMER_CLOCK_SCALE               4
+#define SCI_CLOCK_SCALE                52
 
-// The value of the timer to generate an interrupt for (every 15 ms)
-#define TIMER_TC7_CMP               7500
+// The value of the timer to generate an interrupt for (every 23 ms)
+#define TIMER_TC7_CMP               11500
 
 // The value after which the watchdog times out (after 1.05 s)
-#define WATCH_OSCLK                    6
+#define WATCH_OSCLK                     6
 
 /*----------------------------------------------------------------------------
  * Interface Functions
@@ -197,7 +197,7 @@ void setup_timer()
     TIOS_IOS7 = 1;                  // Enbale timer channel 7 output compare
     TSCR2_TCRE = 1;                 // Reset timer on successful compare
     TIE_C7I = 1;                    // Interrupt on successful compare
-    TC7 = TIMER_TC7_CMP;            // Generate an interrupt every 15 ms
+    TC7 = TIMER_TC7_CMP;            // Generate an interrupt every 23 ms
 
     return;
 }
