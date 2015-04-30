@@ -66,12 +66,11 @@
 
 // Watchdog flags for each task, indicating that they are still alive
 #define MAINLOOP_ALIVE   1
-#define SCI_ALIVE        2
-#define TIMER_ALIVE      4
-#define ATD_ALIVE        8
+#define TIMER_ALIVE      2
+#define ATD_ALIVE        4
 
 // The value of the watchdog flag whenever all tasks are alive
-#define ALL_TASKS_ALIVE 0xF
+#define ALL_TASKS_ALIVE 0x7
 
 // The bit positions for the row and column, inclusive
 #define ROW_START        2
@@ -83,7 +82,7 @@
 #define BUFSIZE         10
 
 // The flag read by the watchdog
-static volatile watch_flag;
+static volatile uint8_t watch_flag;
 
 // The state of the snake game
 static snake_game_t game;
@@ -176,6 +175,7 @@ void main()
             EnableInterrupts;
             kick_watchdog();
         }
+        EnableInterrupts;
     }
 }
 
@@ -215,9 +215,6 @@ void interrupt VectorNumber_Vsci sci_interrupt()
     }
     received_char = SCIBDL;
 
-    // Indicate that the serial task is alive
-    watch_flag |= SCI_ALIVE;
-
     /* Update the snake direction based on the received input. 'w' is up,
      * 'a' is left, 's' is down, 'd' is right. */
     switch (received_char)
@@ -255,12 +252,12 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
     // Ackowledge the ATD interrupt
     ATDSTAT0_SCF = 0x1;
 
-    // Set the ATD watchflag
-    watch_flag |= ATD_ALIVE;
-
     // Read out new brightness value, and update the duty cycle
     brightness = ATDDR0H;
     PWMDTY0 = PWM_PERIOD - brightness;
+
+    // Indicate that the A/D task is alive
+    watch_flag |= ATD_ALIVE;
 
     return;
 }
@@ -324,11 +321,9 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
  */
 void interrupt VectorNumber_Vcop watchdog_interrupt()
 {
-    lcdWriteLine(1, "Watchdog");
-    lcdWriteLine(2, "Error");
-
     // FIXME: Add Some sleeping or looping so user can see the message
     // FIXME: Should call main() from here. Left out for debugging purposes
+    for (;;);
 
     return;
 }
