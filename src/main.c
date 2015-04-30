@@ -78,6 +78,9 @@
 #define COLUMN_START     5
 #define COLUMN_END       7
 
+// How often to move a snake, in the number of timer interrupts (ticks)
+#define MOVE_QUANTUM    10
+
 // The size of the buffer to store strings
 #define BUFSIZE         10
 
@@ -89,6 +92,9 @@ static snake_game_t game;
 
 // Indicates that the game needs to be restarted
 static bool restart_game;
+
+// The number of timer interrupts that have occurred
+static int num_ticks;
 
 // The measured brightness from the photodiode
 static volatile uint8_t brightness;
@@ -134,6 +140,7 @@ void main()
     setup_timer();
 
     // Initialize the game state
+    num_ticks = 0;
     row = 0;
     col = 0;
     restart_game = false;
@@ -266,10 +273,11 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
  *
  * This function handles interrupts from the Timer module, which occurs
  * whenever the timer counter value is equal to the comparison value on
- * channel 7 (every 15 ms). This function draws the next LED on the board,
- * and adjusts the PWM appropiately. If a complete drawing cycle is complete,
- * then this function either moves the snake, or resets the game, if the user
- * pressed the reset game button.
+ * channel 7 (every 23 ms). This function draws the next frame on the board,
+ * and adjusts the PWM appropiately. After MOVE_QUANTUM timer ticks occur
+ * (250 ms), the snake is moved based on the game state. If the user
+ * pressed the reset game button, then the game is reinitialized to its
+ * starting state.
  */
 void interrupt VectorNumber_Vtimch7 tc7_interrupt()
 {
@@ -298,12 +306,21 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
         }
     }
 
+    /* If the game is not paused, then increment the number of timer ticks.
+     * Otherwise, setup the ticks so that movement occurs upon unpausing. */
+    if (game.paused) {
+        num_ticks = MOVE_QUANTUM-1;
+    } else {
+        num_ticks += 1;
+    }
+
     /* Check if the user requested a reset. If so, reset the game.
      * Otherwise, move the snake. */
     if (restart_game) {
         snake_init(&game);
         restart_game = false;
-    } else {
+    } else if (num_ticks == MOVE_QUANTUM) {
+        num_ticks = 0;
         move_snake(&game);
     }
 
