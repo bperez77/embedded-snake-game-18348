@@ -214,16 +214,15 @@ static void kick_watchdog(void)
  */
 void interrupt VectorNumber_Vsci sci_interrupt()
 {
-    uint8_t received_char;
+    char received_char;
 
     // Acknowledge serial interrupt and read the character sent
-    if (!SCISR1_RDRF) {
-        return;
-    }
-    received_char = SCIBDL;
+    received_char = SCISR1_RDRF;
+    received_char = SCIDRL;
 
     /* Update the snake direction based on the received input. 'w' is up,
-     * 'a' is left, 's' is down, 'd' is right. */
+     * 'a' is left, 's' is down, 'd' is right. Due to the orientation of the
+     * LED matrix, left and right are mirrored. */
     switch (received_char)
     {
         case 'w':
@@ -231,7 +230,7 @@ void interrupt VectorNumber_Vsci sci_interrupt()
             game.dcol = -1;
             break;
         case 'a':
-            game.drow = -1;
+            game.drow = 1;
             game.dcol = 0;
             break;
         case 's':
@@ -239,7 +238,7 @@ void interrupt VectorNumber_Vsci sci_interrupt()
             game.dcol = 1;
             break;
         case 'd':
-            game.drow = 1;
+            game.drow = -1;
             game.dcol = 0;
             break;
     }
