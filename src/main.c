@@ -88,7 +88,7 @@
 static volatile uint8_t watch_flag;
 
 // The state of the snake game
-static snake_game_t game;
+static volatile snake_game_t game;
 
 // Indicates that the game needs to be restarted
 static volatile bool restart_game;
@@ -171,7 +171,7 @@ void main()
         reset_last_press = !PORTB_BIT1;
 
         // Format the strings for the score and brightness
-        (void)sprintf(score_buf, "Score: %d", game.score);
+        (void)sprintf(score_buf, "Score:%d", game.score);
         (void)sprintf(atd_buf, "Bg: 0x%02x", brightness);
 
         // Display the score and brightness A/D conversion to the LED's
