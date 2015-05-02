@@ -91,7 +91,7 @@ static volatile uint8_t watch_flag;
 static snake_game_t game;
 
 // Indicates that the game needs to be restarted
-static bool restart_game;
+static volatile bool restart_game;
 
 // The number of timer interrupts that have occurred
 static int num_ticks;
@@ -121,6 +121,7 @@ static void kick_watchdog(void);
  */
 void main()
 {
+    bool pause_last_press, reset_last_press;
     char score_buf[BUFSIZE];
     char atd_buf[BUFSIZE];
 
@@ -130,7 +131,7 @@ void main()
 
     // Setup the watchdog timer
     watch_flag = 0;
-    setup_watchdog();
+    //setup_watchdog();
 
     // Setup the ports, serial communication, PWM, A/D, and timer
     setup_ports();
@@ -140,6 +141,8 @@ void main()
     setup_timer();
 
     // Initialize the game state
+    pause_last_press = false;
+    reset_last_press = false;
     num_ticks = 0;
     row = 0;
     col = 0;
@@ -156,14 +159,16 @@ void main()
     for (;;)
     {
         // Check if the pause button was pressed, and toggle the pause
-        if (!PORTB_BIT0) {
+        if (!pause_last_press && !PORTB_BIT0) {
             game.paused = !game.paused;
         }
+        pause_last_press = !PORTB_BIT0;
 
         // Check if the reset button was pressed
-        if (!PORTB_BIT1) {
+        if (!reset_last_press && !PORTB_BIT1) {
             restart_game = true;
         }
+        reset_last_press = !PORTB_BIT1;
 
         // Format the strings for the score and brightness
         (void)sprintf(score_buf, "Score: %d", game.score);
@@ -180,7 +185,7 @@ void main()
         if (watch_flag == ALL_TASKS_ALIVE) {
             watch_flag = 0;
             EnableInterrupts;
-            kick_watchdog();
+//            kick_watchdog();
         }
         EnableInterrupts;
     }
@@ -214,7 +219,7 @@ static void kick_watchdog(void)
  */
 void interrupt VectorNumber_Vsci sci_interrupt()
 {
-    char received_char;
+    volatile char received_char;
 
     // Acknowledge serial interrupt and read the character sent
     received_char = SCISR1_RDRF;
@@ -337,8 +342,12 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
  */
 void interrupt VectorNumber_Vcop watchdog_interrupt()
 {
-    // FIXME: Add Some sleeping or looping so user can see the message
     // FIXME: Should call main() from here. Left out for debugging purposes
+    lcdSetup();
+
+    lcdWriteLine(1, "Watchdog");
+    lcdWriteLine(2, "Error");
+
     for (;;);
 
     return;
