@@ -230,18 +230,22 @@ void interrupt VectorNumber_Vsci sci_interrupt()
      * LED matrix, left and right are mirrored. */
     switch (received_char)
     {
+        case 'W':
         case 'w':
             game.drow = 0;
             game.dcol = -1;
             break;
+        case 'A':
         case 'a':
             game.drow = 1;
             game.dcol = 0;
             break;
+        case 'S':
         case 's':
             game.drow = 0;
             game.dcol = 1;
             break;
+        case 'D':
         case 'd':
             game.drow = -1;
             game.dcol = 0;
