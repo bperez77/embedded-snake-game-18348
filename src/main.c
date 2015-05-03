@@ -148,7 +148,7 @@ void main()
     col = 0;
     restart_game = false;
     brightness = PWM_INIT_DUTY;
-    snake_init(&game);
+    snake_init((snake_game_t *)&game);
 
     // Enable all interrupts
     EnableInterrupts;
@@ -233,21 +233,21 @@ void interrupt VectorNumber_Vsci sci_interrupt()
         case 'W':
         case 'w':
             game.drow = 0;
-            game.dcol = -1;
+            game.dcol = 1;
             break;
         case 'A':
         case 'a':
-            game.drow = 1;
+            game.drow = -1;
             game.dcol = 0;
             break;
         case 'S':
         case 's':
             game.drow = 0;
-            game.dcol = 1;
+            game.dcol = -1;
             break;
         case 'D':
         case 'd':
-            game.drow = -1;
+            game.drow = 1;
             game.dcol = 0;
             break;
     }
@@ -325,11 +325,11 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
     /* Check if the user requested a reset. If so, reset the game.
      * Otherwise, move the snake. */
     if (restart_game) {
-        snake_init(&game);
+        snake_init((snake_game_t *)&game);
         restart_game = false;
     } else if (num_ticks == MOVE_QUANTUM) {
         num_ticks = 0;
-        move_snake(&game);
+        move_snake((snake_game_t *)&game);
     }
 
     // Indicate that the timer/game update task is alive
