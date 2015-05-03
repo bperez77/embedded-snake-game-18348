@@ -79,7 +79,7 @@
 #define COLUMN_END       7
 
 // How often to move a snake, in the number of timer interrupts (ticks)
-#define MOVE_QUANTUM    10
+#define MOVE_QUANTUM    76
 
 // The size of the buffer to store strings
 #define BUFSIZE         10
@@ -171,7 +171,7 @@ void main()
         reset_last_press = !PORTB_BIT1;
 
         // Format the strings for the score and brightness
-        (void)sprintf(score_buf, "Score:%d", game.score);
+        (void)sprintf(score_buf, "Score:%2d", game.score);
         (void)sprintf(atd_buf, "Bg: 0x%02x", brightness);
 
         // Display the score and brightness A/D conversion to the LED's
@@ -289,45 +289,41 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
  */
 void interrupt VectorNumber_Vtimch7 tc7_interrupt()
 {
-    int8_t row, col;
-
     // Acknowledge the timer interrupt
     TFLG1_C7F = 0x1;
 
-    // Draw a frame, the entire snake board
-    for (row = 0; row < SNAKE_ROWS; row++)
-    {
-        for (col = 0; col < SNAKE_COLUMNS; col++)
-        {
-            // Select the LED at (row, col)
-            PTT = set_bits(PTT, row, ROW_START, ROW_END);
-            PTT = set_bits(PTT, col, COLUMN_START, COLUMN_END);
+    // Select the LED at (row, col)
+    PTT = set_bits(PTT, row, ROW_START, ROW_END);
+    PTT = set_bits(PTT, col, COLUMN_START, COLUMN_END);
 
-            /* Drive the selected LED only if it is the snake or food. Reset the
-             * PWM period counter so that we don't get an irregular period. */
-            if (game.board[row][col] == SNAKE_EMPTY) {
-                PWME_PWME0 = 0x0;
-            } else {
-                PWMCNT0 = 0;
-                PWME_PWME0 = 0x1;
-            }
-        }
+    /* Drive the selected LED only if it is the snake or food. Reset the
+     * PWM period counter so that we don't get an irregular period. */
+    if (game.board[row][col] == SNAKE_EMPTY) {
+        PWME_PWME0 = 0x0;
+    } else {
+        PWMCNT0 = 0;
+        PWME_PWME0 = 0x1;
+    }
+
+    col = mod_8(col + 1, SNAKE_COLUMNS);
+    if (col == 0) {
+        row = mod_8(row + 1, SNAKE_ROWS);
     }
 
     /* If the game is not paused, then increment the number of timer ticks.
      * Otherwise, setup the ticks so that movement occurs upon unpausing. */
-    if (game.paused) {
+    if (row == 0 && game.paused) {
         num_ticks = MOVE_QUANTUM-1;
-    } else {
+    } else if (row == 0) {
         num_ticks += 1;
     }
 
     /* Check if the user requested a reset. If so, reset the game.
      * Otherwise, move the snake. */
-    if (restart_game) {
+    if (row == 0 && restart_game) {
         snake_init((snake_game_t *)&game);
         restart_game = false;
-    } else if (num_ticks == MOVE_QUANTUM) {
+    } else if (row == 0 && num_ticks == MOVE_QUANTUM) {
         num_ticks = 0;
         move_snake((snake_game_t *)&game);
     }

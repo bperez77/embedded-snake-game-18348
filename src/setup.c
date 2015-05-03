@@ -37,12 +37,12 @@
 
 // Clock dividers for the A/D converter, serial module, and PWM module
 #define PWM_CLOCK_SCALE                 4
-#define ATD_CLOCK_SCALE                 5
+#define ATD_CLOCK_SCALE                31
 #define TIMER_CLOCK_SCALE               4
 #define SCI_CLOCK_SCALE                52
 
-// The value of the timer to generate an interrupt for (every 23 ms)
-#define TIMER_TC7_CMP               11500
+// The value of the timer to generate an interrupt for (every 0.32 ms)
+#define TIMER_TC7_CMP                 160
 
 // The value after which the watchdog times out (after 1.05 s)
 #define WATCH_OSCLK                     6
