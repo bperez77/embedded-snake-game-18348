@@ -138,7 +138,7 @@ void main()
 
     // Setup the watchdog timer
     watch_flag = 0;
-    //setup_watchdog();
+    setup_watchdog();
 
     // Setup the ports, serial communication, PWM, A/D, and timer
     setup_ports();
@@ -191,7 +191,7 @@ void main()
         if (watch_flag == ALL_TASKS_ALIVE) {
             watch_flag = 0;
             EnableInterrupts;
-//            kick_watchdog();
+            kick_watchdog();
         }
         EnableInterrupts;
     }
@@ -344,18 +344,19 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
  *
  * This function handles interrupts whenver a COP (or watchdog) reset occurs.
  * This happens whenever the watchdog is not "kicked" in time. This simply
- * notifies the user that a watchdog error occured on the LCD display.
+ * notifies the user that a watchdog error occured on the LCD display. This
+ * function never returns.
  */
 void interrupt VectorNumber_Vcop watchdog_interrupt()
 {
-    // FIXME: Issues with setup
-    // FIXME: Should call main() from here. Left out for debugging purposes
-    lcdSetup();
+    // Defined in hidef.h, initializes the stack pointer properly
+    INIT_SP_FROM_STARTUP_DESC();
 
+    // Setup the LCD screen, and indicate a watchdog error.
+    lcdSetup();
     lcdWriteLine(1, "Watchdog");
     lcdWriteLine(2, "Error");
 
+    // Loop forever, wait until the user presses the reset button
     for (;;);
-
-    return;
 }
