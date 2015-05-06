@@ -64,6 +64,10 @@
  * Internal Definitions
  *----------------------------------------------------------------------------*/
 
+// The values written to ARMCOP to prevent a watchdog (COP) reset
+#define WATCHDOG_VAL1   0x55
+#define WATCHDOG_VAL2   0xAA
+
 // Watchdog flags for each task, indicating that they are still alive
 #define MAINLOOP_ALIVE   1
 #define TIMER_ALIVE      2
@@ -71,6 +75,9 @@
 
 // The value of the watchdog flag whenever all tasks are alive
 #define ALL_TASKS_ALIVE 0x7
+
+// The minimum brightness for the LED's
+#define MIN_BRIGHTNESS  0x3
 
 // The bit positions for the row and column, inclusive
 #define ROW_START        2
@@ -153,7 +160,6 @@ void main()
     // Enable all interrupts
     EnableInterrupts;
 
-    // TODO: Maybe software debouncing is needed?
     /* Loop forever, reading the user input, and updating the game
      * state appropiately. */
     for (;;)
@@ -199,8 +205,8 @@ void main()
  */
 static void kick_watchdog(void)
 {
-    ARMCOP = 0x55;
-    ARMCOP = 0xAA;
+    ARMCOP = WATCHDOG_VAL1;
+    ARMCOP = WATCHDOG_VAL2;
 
     return;
 }
@@ -269,7 +275,7 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
 
     // Read out new brightness value, and update the duty cycle
     brightness = ATDDR0H;
-    PWMDTY0 = PWM_PERIOD - brightness;
+    PWMDTY0 = (brightness < MIN_BRIGHTNESS) ? MIN_BRIGHTNESS : brightness;
 
     // Indicate that the A/D task is alive
     watch_flag |= ATD_ALIVE;
@@ -342,6 +348,7 @@ void interrupt VectorNumber_Vtimch7 tc7_interrupt()
  */
 void interrupt VectorNumber_Vcop watchdog_interrupt()
 {
+    // FIXME: Issues with setup
     // FIXME: Should call main() from here. Left out for debugging purposes
     lcdSetup();
 

@@ -43,6 +43,14 @@ uint8_t mask_above(int8_t bit_pos);
  */
 uint8_t mask_between(int8_t lower, int8_t upper);
 
+/* extract_bits
+ *
+ * Extracts the bits from position lower to upper, inclusive x[upper:lower].
+ * Lower and upper must both be between 7 and 0.
+ *
+ */
+uint8_t extract_bits(uint8_t x, int8_t lower, int8_t upper);
+
 /* set_bits
  *
  * Sets the bits from position lower to upper, x[upper:lower], with the lower

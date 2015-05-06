@@ -49,6 +49,12 @@
 #define RAND_OFFSET         251
 #define RAND_SEED           210
 
+// Which bits to sample from the random number to get the row and column
+#define ROW_START             2
+#define ROW_END               4
+#define COLUMN_START          3
+#define COLUMN_END            5
+
 /* The maximum number of times to try to randomly place food before
  * defaulting to a linear search. */
 #define MAX_FOOD_TRIES       10
@@ -182,12 +188,14 @@ static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS])
     int i;
     int row, col;
     int food_row, food_col;
+    int rand_num;
 
     // Attempt to randomly generate a new position for the food
     for (i = 0; i < MAX_FOOD_TRIES; i++)
     {
-        food_row = mod_16(rand(), SNAKE_ROWS);
-        food_col = mod_16(rand(), SNAKE_COLUMNS);
+        rand_num = rand();
+        food_row = extract_bits((uint8_t)rand_num, ROW_START, ROW_END);
+        food_col = extract_bits((uint8_t)(rand_num >> 8), COLUMN_START, COLUMN_END);
         if (board[food_row][food_col] == SNAKE_EMPTY) {
             board[food_row][food_col] = SNAKE_FOOD;
             return;
