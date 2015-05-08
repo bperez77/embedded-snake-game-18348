@@ -1,0 +1,8 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP KWM-30881AVB
+D 8x8 Red LED Matrix, Row-Anode
+K LED Matrix
+$ENDCMP
+#
+#End Doc Library
