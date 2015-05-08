@@ -38,6 +38,7 @@
  *     Port AD[7] to Photodiode Output
  *     Port B[0] to PB1
  *     Port B[1] to PB2
+ *     Port P[0] to the Enable Input of the Row Decoder
  *     Port T[4:2] to Select Input of the Row Decoder
  *     Port T[7:5] to Select Input of Column Decoder
  *     Port P[0] to Enable Input of the Row Decoder
@@ -287,7 +288,7 @@ void interrupt VectorNumber_Vatd0 atd_interrupt()
  *
  * This function handles interrupts from the Timer module, which occurs
  * whenever the timer counter value is equal to the comparison value on
- * channel 7 (every 23 ms). This function draws the next frame on the board,
+ * channel 7 (every 0.32 ms). This function draws the next frame on the board,
  * and adjusts the PWM appropiately. After MOVE_QUANTUM timer ticks occur
  * (250 ms), the snake is moved based on the game state. If the user
  * pressed the reset game button, then the game is reinitialized to its

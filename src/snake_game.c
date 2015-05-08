@@ -195,7 +195,8 @@ static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS])
     {
         rand_num = rand();
         food_row = extract_bits((uint8_t)rand_num, ROW_START, ROW_END);
-        food_col = extract_bits((uint8_t)(rand_num >> 8), COLUMN_START, COLUMN_END);
+        food_col = extract_bits((uint8_t)(rand_num >> 8), COLUMN_START,
+                                COLUMN_END);
         if (board[food_row][food_col] == SNAKE_EMPTY) {
             board[food_row][food_col] = SNAKE_FOOD;
             return;
@@ -217,7 +218,6 @@ static void generate_food(int board[SNAKE_ROWS][SNAKE_COLUMNS])
 
     return;
 }
-
 
 /* rand
  *
