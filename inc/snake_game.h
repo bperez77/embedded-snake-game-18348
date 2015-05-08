@@ -9,7 +9,7 @@
  * CodeWarrior Version: 5.1
  *
  * Created: Fri 24 Apr 2015 03:55:24 PM EDT
- * Last Modified: TODO: Update
+ * Last Modified: Thu 07 May 2015 08:42:27 PM EDT
  *
  * This file contains the interface to the snake game module, the definition
  * of the structure that represents the state of the game, and constants

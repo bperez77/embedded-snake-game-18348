@@ -9,7 +9,7 @@
  * CodeWarrior Version: 5.1
  *
  * Created: Fri 24 Apr 2015 03:55:00 PM EDT
- * Last Modified: TODO: Update
+ * Last Modified: Thu 07 May 2015 08:41:55 PM EDT
  *
  * This is the module that manages the snake game. The game is represented
  * by a 2D array, corresponding to the LED array that it is mapped onto.

@@ -9,7 +9,7 @@
  * CodeWarrior Version: 5.1
  *
  * Created: Sun 26 Apr 2015 05:55:01 PM EDT
- * Last Modified: TODO: Update
+ * Last Modified: Thu 07 May 2015 08:41:17 PM EDT
  *
  * This file contains various helper functions for performing bit-wise
  * operations on uint8_t elements, and a modulo function for powers of 2.

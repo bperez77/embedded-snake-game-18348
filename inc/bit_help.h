@@ -9,7 +9,7 @@
  * CodeWarrior Version: 5.1
  *
  * Created: Sun 26 Apr 2015 06:16:55 PM EDT
- * Last Modified: TODO: Update
+ * Last Modified: Thu 07 May 2015 08:42:12 PM EDT
  *
  * This file contains the interface for the bit help module, which is a
  * helper module for performing bit-wise operations (generating bit masks,
