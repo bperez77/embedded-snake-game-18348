@@ -1,0 +1,5 @@
+Task,Worst Case Latency,Worst Case Execution Time,Blocking Time
+Game Update (Timer),0.010 ms,0.126 ms,N/A
+Direction Update (Serial),0.127 ms,0.010 ms,N/A
+Brightness Update (A/D),0.137 ms,0.003 ms,N/A
+Main Loop,0.140 ms,44.338 ms,0.001 ms

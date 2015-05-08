@@ -1,0 +1,6 @@
+Defect,Line,Description of Defect
+1,serialComm.py: line 5,Program uses incorrect baud rate
+2,main.c: line 178,Text overflows LCD buffer
+3,main.c: line 303,ATD interrupt incorrectly updates watch flag
+4,main.c: line 316,Timer interrupt does not sleep and wait for the PWM
+5,snake_game.c: line 75,Snake init does not initialize game->paused

@@ -1,0 +1,9 @@
+Change,Section,Description
+1,Requirements (2),Changed left direction key to 'a'
+2,Requirements (2),Changed right direction key to 'd'
+3,Requirements (2),Changed up direction key to 'w'
+4,Requirements (2),Changed down direction key to 's'
+5,Scheduling (5),Changed game update task period
+6,Scheduling (5),Changed update brightness task period
+7,Scheduling (5),Changed update brightness task period
+8,Watchdog/COP (6),Changed the watchdog period time

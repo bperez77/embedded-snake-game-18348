@@ -1,0 +1,16 @@
+State or Transition;Implementing Code
+S0;main.c: line 297
+S1;main.c: line 227
+S2;main.c: line 272
+S3;main.c: line 170
+S4;snake_game.c: line 151
+S5;snake_game.c: line 186, line 227
+T1;setup.c: line 104, line 105
+T2;setup.c: line 154
+T3;main.c: line 169, line 172
+T4;snake_game.c: line 150
+T5;main.c: line 284
+T6;main.c: line 169, line 172
+T7;main.c: line 262
+T8;snake_game.c: line 144
+T9;snake_game.c: line 219

@@ -9,7 +9,6 @@
 *.pch
 
 # Libraries
-*.lib
 *.a
 *.la
 *.lo
@@ -31,8 +30,9 @@
 # Mips assembled files
 *.x
 
-# Vim backup files
+# Backup files
 *.swp
+*.bak
 
 # Any log type files
 *.log

@@ -1,0 +1,5 @@
+Bug,Test,Requirement,Description
+1,2.1,R1,The games ping-pongs between the paused and unpaused states
+2,2.2,R2,The snake's horizontal movement is mirrored
+3,2.3,R3,The snake's horizontal movement is mirrored
+4,2.7,R7,The score does not update as it is not volatile

@@ -1,0 +1,6 @@
+Test;Pass/Fail;Initial State;Step 1 (State After Input);Step 2 (State After Input)
+Test 1.1;PASS;S0;directionReady(S1);X(S0)
+Test 1.2;FAIL;S0;brightnessReady(S2);X(S0)
+Test 1.3;PASS;S0;pauseButton==PRESSED (S3);pauseButton==UNPRESSED (S0)
+Test 1.4;PASS;S0;collision[snakeHead, snakeBoard] (S4);X(S4)
+Test 1.5;PASS;S0;snakeHead==foodPosition (S5);X(S0)

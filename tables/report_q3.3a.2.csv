@@ -1,0 +1,2 @@
+Bug,Test,Requirements,Description
+1,1.2,R8,The program is stuck in the A/D interrupt.

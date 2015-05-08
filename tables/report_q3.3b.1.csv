@@ -1,0 +1,10 @@
+Test,Pass/Fail,Test Description,Result
+Test 2.1,FAIL,Verify that PB1 causes a pause,Snake speeds up
+Test 2.2,FAIL,Verify pressing the left arrow key causes the snake to turn left,Snake turns right
+Test 2.3,FAIL,Verify pressing the right arrow key causes the snake to turn left,Snake turns left
+Test 2.4,PASS,Verify pressing the up arrow key causes the snake to turn upwards,
+Test 2.5,PASS,Verify pressing the down arrow key causes the snake to turn downwards,
+Test 2.6,PASS,Verify that the game ends when the snakes collides with itself,
+Test 2.7,FAIL,Verify that the LCD display updates correctly when the snake eats food,Score is stuck at 1
+Test 2.8,PASS,Verify that the brightness of the display follows the readings taken by the luminence sensor(shown on the LCD display),
+Test 2.9,PASS,Verify that the length of the snake increases by 1 when it eats food,
