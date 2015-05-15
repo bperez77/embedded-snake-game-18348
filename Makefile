@@ -20,7 +20,7 @@ SRC_PATHS = $(SRC_DIR)/snake_game.c $(SRC_DIR)/bit_help.c \
 DOC_PATHS = $(DOC_DIR)/design.tex
 REPORT_PATHS = $(DOC_DIR)/report.tex
 
-.PHONY: all clean
+.PHONY: all clean veryclean
 
 ################################################################################
 # Targets
@@ -41,3 +41,6 @@ report: $(REPORT_PATHS)
 
 clean:
 	rm -f snake_test *.aux *.ps *.pyg *.synctex.gz *.dvi *.log
+
+veryclean: clean
+	rm -f report.pdf design.pdf
