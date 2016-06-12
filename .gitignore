@@ -40,11 +40,14 @@ log.txt
 
 # Latex build files
 *.aux
-*.pdf
 *.ps
 *.pyg
 *.synctex.gz
 *.dvi
+
+# Generated documentation files
+design.pdf
+report.pdf
 
 # Executable created by Makefile
 snake_test

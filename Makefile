@@ -40,7 +40,7 @@ report: $(REPORT_PATHS)
 	$(DOC_CC) $(DOC_FLAGS) $^
 
 clean:
-	rm -f snake_test *.aux *.ps *.pyg *.synctex.gz *.dvi *.log
+	rm -f snake_test *.aux *.ps *.pyg *.synctex.gz *.dvi *.log doc/*.pyg
 
 veryclean: clean
 	rm -f report.pdf design.pdf
